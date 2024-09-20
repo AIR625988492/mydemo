@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Vue Example</title>
+</head>
+
+<body>
+  <div id="app">
+     
+  </div>
+
+  <script src="./tesseract/vue.js"></script>
+  <script src="./tesseract/tesseract.min.js"></script>
+  <script>
+    var app = new Vue({
+      el: "#app",
+      data: {
+        imageUrl: null,
+        ocrResult: null
+      },
+      methods: {
+        handleFileChange(event) {
+          const file = event.target.files[0];
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.imageUrl = e.target.result;
+            this.ocrResult = null;
+          };
+          reader.readAsDataURL(file);
+        },
+        performOCR() {
+          Tesseract.recognize(
+            this.imageUrl, // 图像路径
+            'eng+chi_sim', // 识别语言
+            { spaceIsWord:false,
+              tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' }
+          ).then(({ data: { text } }) => {
+            console.log(text.replace(/\s+/g, ' ').trim());
+            this.ocrResult = text.replace(/\s+/g, ' ').trim()
+          })
+            .catch(err => {
+              console.error(err);
+            })
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
